@@ -2,6 +2,7 @@
 #define NOMINMAX
 #include <Windows.h>
 #include <chrono>
+#include <stdlib.h>
 
 #include "valve_sdk/csgostructs.hpp"
 #include "helpers/input.hpp"
@@ -18,7 +19,8 @@
 // 
 // =========================================================
 static char* sidebar_tabs[] = {
-    "ESP",
+    "LEGIT",
+	"ESP",
     "AIM",
     "MISC",
     "CONFIG"
@@ -95,7 +97,93 @@ int get_fps()
 
     return fps;
 }
+void RenderLegitTab()
+{
+	static char* legit_tab_names[] = { "AIMBOT", "TRIGGERBOT", "ADVANCED" };
+	static int active_legit_tab = 0;
 
+	bool placeholder_true = true;
+
+	auto& style = ImGui::GetStyle();
+	float group_w = ImGui::GetCurrentWindow()->Size.x - style.WindowPadding.x * 2;
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2::Zero);
+	{
+		render_tabs(legit_tab_names, active_legit_tab, group_w / _countof(legit_tab_names), 25.0f, true);
+	}
+	ImGui::PopStyleVar();
+	ImGui::BeginGroupBox("##body_content");
+	{
+		if (active_legit_tab == 0) {
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ style.WindowPadding.x, style.ItemSpacing.y });
+			ImGui::Columns(2, nullptr, false);
+			ImGui::SetColumnOffset(1, group_w / 3.0f);
+			ImGui::SetColumnOffset(2, 2 * group_w / 3.0f);
+			ImGui::SetColumnOffset(3, group_w);
+
+			ImGui::Checkbox("Enabled", &g_Options.aimbot_enabled);
+			ImGui::Hotkey("Key", &g_Options.aimbot_key);
+			ImGui::Checkbox("Team check", &g_Options.aimbot_enemies_only);
+			ImGui::Checkbox("Smokecheck", &g_Options.aimbot_smoke_check);
+
+			ImGui::NextColumn();
+
+			ImGui::SliderFloat("FOV", &g_Options.aimbot_fov, 0, 1);
+			ImGui::SliderFloat("Smooth", &g_Options.aimbot_smooth, 0, 1);
+			const char* hitboxes[] = { "HEAD", "NECK", "CHEST", "LEGS" };
+			ImGui::Combo("Hitbox", &g_Options.aimbot_hitbox, hitboxes, IM_ARRAYSIZE(hitboxes));
+			ImGui::Checkbox("RCS", &g_Options.aimbot_rcs);
+			ImGui::Checkbox("pSilent", &g_Options.aimbot_psilent);
+			/*ImGui::NextColumn();
+
+			ImGui::PushItemWidth(100);
+			ImGui::ColorEditMode(ImGuiColorEditMode_HEX);
+			ImGuiEx::ColorEdit3("Allies Visible", &g_Options.color_esp_ally_visible);
+			ImGuiEx::ColorEdit3("Enemies Visible", &g_Options.color_esp_enemy_visible);
+			ImGuiEx::ColorEdit3("Allies Occluded", &g_Options.color_esp_ally_occluded);
+			ImGuiEx::ColorEdit3("Enemies Occluded", &g_Options.color_esp_enemy_occluded);
+			ImGuiEx::ColorEdit3("Crosshair", &g_Options.color_esp_crosshair);
+			ImGuiEx::ColorEdit3("Dropped Weapons", &g_Options.color_esp_weapons);
+			ImGuiEx::ColorEdit3("Defuse Kit", &g_Options.color_esp_defuse);
+			ImGuiEx::ColorEdit3("Planted C4", &g_Options.color_esp_c4);
+			ImGui::PopItemWidth();*/
+
+			ImGui::Columns(1, nullptr, false);
+			ImGui::PopStyleVar();
+		}
+		else if (active_legit_tab == 1) {
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ style.WindowPadding.x, style.ItemSpacing.y });
+			ImGui::Columns(1, nullptr, false);
+			ImGui::SetColumnOffset(1, group_w / 3.0f);
+			ImGui::SetColumnOffset(2, 2 * group_w / 3.0f);
+			ImGui::SetColumnOffset(3, group_w);
+
+			ImGui::Checkbox("Enabled", &g_Options.trigger_enabled);
+			ImGui::Checkbox("Team check", &g_Options.trigger_enemies_only);
+			ImGui::Checkbox("Magnet", &g_Options.trigger_magnet);
+		}
+		else if (active_legit_tab == 2) {
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ style.WindowPadding.x, style.ItemSpacing.y });
+			ImGui::Columns(1, nullptr, false);
+			ImGui::SetColumnOffset(1, group_w / 3.0f);
+			ImGui::SetColumnOffset(2, 2 * group_w / 2.9f);
+			ImGui::SetColumnOffset(3, group_w);
+
+			ImGui::BeginGroupBox("Advanced");
+			{
+				ImGui::PushItemWidth(110);
+				ImGui::Checkbox("Alpha Aimbot", &g_Options.aimbot_advanced_alpha);
+				ImGui::Checkbox("Onetap", &g_Options.aimbot_advanced_onetap);
+				ImGui::Checkbox("Hybrid Aimbot", &g_Options.aimbot_advanced_hybrid);
+				ImGui::PopItemWidth();		
+			}
+			ImGui::EndGroupBox();
+
+			ImGui::Columns(1, nullptr, false);
+			ImGui::PopStyleVar();
+		}
+	}
+	ImGui::EndGroupBox();
+}
 void RenderEspTab()
 {
     static char* esp_tab_names[] = { "ESP", "GLOW", "CHAMS" };
@@ -336,7 +424,7 @@ void Menu::Render()
     ImGui::SetNextWindowPos(ImVec2{ 0, 0 }, ImGuiSetCond_Once);
     ImGui::SetNextWindowSize(ImVec2{ 1000, 0 }, ImGuiSetCond_Once);
 
-    if(ImGui::Begin("CSGOSimple",
+    if(ImGui::Begin("Voidhook Alpha",
                     &_visible,
                     ImGuiWindowFlags_NoCollapse |
                     ImGuiWindowFlags_ShowBorders |
@@ -360,9 +448,9 @@ void Menu::Render()
 
         ImGui::BeginGroupBox("##body", size);
         if(active_sidebar_tab == 0) {
-            RenderEspTab();
+            RenderLegitTab();
         } else if(active_sidebar_tab == 1) {
-            RenderEmptyTab();
+            RenderEspTab();
         } else if(active_sidebar_tab == 2) {
             RenderMiscTab();
         } else if(active_sidebar_tab == 3) {

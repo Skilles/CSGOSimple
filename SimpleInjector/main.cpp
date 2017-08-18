@@ -3,6 +3,8 @@
 #include <fstream>
 #include <TlHelp32.h>
 #include <string>
+#include <cstdlib>
+#include <stdlib.h>  
 
 bool file_exists(const wchar_t* name)
 {
@@ -104,8 +106,9 @@ fail:
 
 int main()
 {
-    constexpr auto TARGET_FILE      = L"csgosimple.dll";
+    constexpr auto TARGET_FILE      = L"voidhook.dll";
     constexpr auto TARGET_PROCESS   = L"csgo.exe";
+	constexpr auto STEAM = L"steam.exe";
 
     wchar_t fullpath[MAX_PATH] = { 0 };
     auto    proc_id = 0u;
@@ -116,7 +119,8 @@ int main()
     try {
         if(!file_exists(TARGET_FILE))
             throw std::runtime_error{ "DLL not found." };
-
+		if (process_exists(STEAM, proc_id))
+			throw std::runtime_error{ "Close steam first" };
         if(!process_exists(TARGET_PROCESS, proc_id))
             throw std::runtime_error{ "Process is not running." };
 

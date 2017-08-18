@@ -8,6 +8,25 @@
 class Config
 {
 public:
+	//
+	// LEGIT
+	//
+	OPTION(bool, aimbot_enabled, false);
+	OPTION(int, aimbot_key, false);
+	OPTION(bool, aimbot_enemies_only, false);
+	OPTION(bool, aimbot_smoke_check, false);
+	OPTION(float, aimbot_fov, false);
+	OPTION(float, aimbot_smooth, false);
+	OPTION(int, aimbot_hitbox, false);
+	OPTION(bool, aimbot_rcs, false);
+	OPTION(bool, aimbot_psilent, false);
+	OPTION(bool, trigger_enabled, false);
+	OPTION(bool, trigger_enemies_only, false);
+	OPTION(bool, trigger_magnet, false);
+	OPTION(bool, aimbot_advanced_alpha, false);
+	OPTION(bool, aimbot_advanced_onetap, false);
+	OPTION(bool, aimbot_advanced_hybrid, false);
+	
     // 
     // ESP
     // 
